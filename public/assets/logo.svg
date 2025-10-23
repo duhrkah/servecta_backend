@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Ebene_2" data-name="Ebene 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 688 405">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #b2c84d;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        stroke: #000;
+        stroke-miterlimit: 10;
+        stroke-width: 1.5px;
+      }
+
+      .cls-4 {
+        font-family: OpenSans-Regular, 'Open Sans';
+        font-size: 36px;
+        font-variation-settings: 'wght' 400, 'wdth' 100;
+      }
+
+      .cls-4, .cls-2 {
+        fill: #404c55;
+      }
+
+      .cls-5 {
+        font-family: Montserrat-Bold, Montserrat;
+        font-size: 93.1px;
+        font-variation-settings: 'wght' 700;
+        font-weight: 700;
+      }
+
+      .cls-5, .cls-3 {
+        fill: #2753a2;
+      }
+
+      .cls-6 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-7 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-8 {
+        letter-spacing: -.03em;
+      }
+    </style>
+  </defs>
+  <g>
+    <path class="cls-3" d="M232.31,52.83s75.99-30.32,98.17-29.41v33.69s-44.67,1.59-66.61,17.76l.39,13.36s2.64,55.88,66.23,91.89v34.89s-88.58-33.96-98.17-124.48v-37.69Z"/>
+    <path class="cls-1" d="M331.41,23.4s68.99,11.1,98.75,30.14v34.51s-43.03-27.38-99.68-30.95l.93-33.71Z"/>
+    <path class="cls-2" d="M331.54,180.23v35.31s68.16-19.01,93.95-102.57c0,0-33.94-27.96-93.95-30.86v31.43s31.87,1.21,54.85,14.27c0,0-12.49,29.15-54.85,52.42Z"/>
+  </g>
+  <text class="cls-5" transform="translate(61.98 316.21) scale(1.01 1)"><tspan x="0" y="0">SER</tspan><tspan class="cls-6" x="190.28" y="0">V</tspan><tspan x="258.33" y="0">E</tspan><tspan class="cls-7" x="320.8" y="0">C</tspan><tspan class="cls-8" x="386.99" y="0">T</tspan><tspan x="441.27" y="0">A</tspan></text>
+  <text class="cls-4" transform="translate(64.62 365.53) scale(1.05 1)"><tspan x="0" y="0">Ein Partner. Alle Sicherheiten.</tspan></text>
+</svg>
