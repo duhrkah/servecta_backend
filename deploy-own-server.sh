@@ -78,7 +78,7 @@ check_nginx() {
 # Installiere Dependencies
 install_dependencies() {
     log_step "Installiere Dependencies..."
-    npm ci --production
+    npm ci
 }
 
 # Erstelle Production Build
