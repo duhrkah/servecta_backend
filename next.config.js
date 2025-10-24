@@ -6,6 +6,10 @@ const nextConfig = {
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
+  // Set custom port
+  serverRuntimeConfig: {
+    port: process.env.PORT || 3001,
+  },
 }
 
 module.exports = nextConfig
