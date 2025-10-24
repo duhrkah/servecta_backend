@@ -1,9 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+// Force dynamic rendering
+
+// Force dynamic rendering
 import { z } from 'zod'
+
+// Force dynamic rendering
 import { getCurrentUser } from '@/lib/auth-utils'
+
+// Force dynamic rendering
 import { collections } from '@/lib/mongodb'
+
+// Force dynamic rendering
 import { ObjectId } from 'mongodb'
+
+// Force dynamic rendering
 import bcrypt from 'bcryptjs'
+
+// Force dynamic rendering
 
 const createConsumerSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich'),

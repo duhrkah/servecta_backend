@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
+// Force dynamic rendering
 import { z } from 'zod'
+
+// Force dynamic rendering
 import { requireManagerOrAdmin, getCurrentUser } from '@/lib/auth-utils'
+
+// Force dynamic rendering
 import { collections, findUserById } from '@/lib/mongodb'
+
+// Force dynamic rendering
 import { ObjectId } from 'mongodb'
+
+// Force dynamic rendering
 import { emailService } from '@/lib/email-service'
+
+// Force dynamic rendering
 
 const updateTicketSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich').optional(),

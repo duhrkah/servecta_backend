@@ -63,6 +63,11 @@ export const authOptions: NextAuthOptions = {
         }
         } catch (error) {
           console.error('Auth error:', error)
+          console.error('Error details:', {
+            message: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+            databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set'
+          })
           return null
         }
       }

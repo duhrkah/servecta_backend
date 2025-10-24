@@ -1,8 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+// Force dynamic rendering
+
+// Force dynamic rendering
 import { z } from 'zod'
+
+// Force dynamic rendering
 import { getCurrentUser, requireManagerOrAdmin } from '@/lib/auth-utils'
+
+// Force dynamic rendering
 import { collections, findUserById } from '@/lib/mongodb'
+
+// Force dynamic rendering
 import { ObjectId } from 'mongodb'
+
+// Force dynamic rendering
 
 const createCommentSchema = z.object({
   content: z.string().min(1, 'Kommentar-Inhalt ist erforderlich'),

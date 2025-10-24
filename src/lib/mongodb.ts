@@ -29,8 +29,14 @@ if (process.env.NODE_ENV === 'development') {
 export default clientPromise
 
 export async function getDatabase(): Promise<Db> {
-  const client = await clientPromise
-  return client.db('servecta_admin')
+  try {
+    const client = await clientPromise
+    return client.db('servecta_admin')
+  } catch (error) {
+    console.error('Database connection error:', error)
+    console.error('Database URL:', process.env.DATABASE_URL ? 'Set' : 'Not set')
+    throw new Error(`Failed to connect to database: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
 }
 
 export async function getCollection<T extends Document = Document>(name: string): Promise<Collection<T>> {

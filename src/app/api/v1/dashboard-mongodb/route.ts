@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 import { getCurrentUser } from '@/lib/auth-utils'
 import { collections } from '@/lib/mongodb'
+
+// Force dynamic rendering
 
 export async function GET(request: NextRequest) {
   try {
