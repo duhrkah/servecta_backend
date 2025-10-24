@@ -55,6 +55,18 @@ export async function GET(request: NextRequest) {
 
     // Build query
     const query: any = {}
+
+    // Consumer-spezifische Filterung basierend auf Benutzerrolle
+    if (user.role === 'KUNDE' && (user as any).customerId) {
+      // Verwende customerId als String, da Projekte customerId als String speichern
+      query.customerId = (user as any).customerId.toString()
+      console.log('Consumer filtering by customerId:', (user as any).customerId.toString())
+      console.log('User data:', { id: user._id, role: user.role, customerId: (user as any).customerId })
+    } else if (user.role === 'MITARBEITER') {
+      // Mitarbeiter sehen nur ihre eigenen Projekte
+      query.assigneeId = new ObjectId(user.id)
+      console.log('Employee filtering by assigneeId:', user.id)
+    }
     
     if (search) {
       query.$or = [
@@ -76,8 +88,6 @@ export async function GET(request: NextRequest) {
     if (department) {
       query.departments = department
     }
-
-    console.log('MongoDB query for projects:', query)
 
     const [projects, total] = await Promise.all([
       projectsCollection

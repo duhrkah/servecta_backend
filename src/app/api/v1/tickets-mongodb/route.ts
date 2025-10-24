@@ -57,6 +57,19 @@ export async function GET(request: NextRequest) {
     
     // Build query
     const query: any = {}
+
+    // Consumer-spezifische Filterung basierend auf Benutzerrolle
+    if (user.role === 'KUNDE' && (user as any).customerId) {
+      query.customerId = (user as any).customerId.toString()
+      console.log('Consumer filtering tickets by customerId:', (user as any).customerId.toString())
+    } else if (user.role === 'MITARBEITER') {
+      // Mitarbeiter sehen nur ihre eigenen Tickets
+      query.$or = [
+        { assigneeId: user.id },
+        { reporterId: user.id }
+      ]
+      console.log('Employee filtering tickets by assigneeId:', user.id)
+    }
     
     if (search) {
       query.$or = [

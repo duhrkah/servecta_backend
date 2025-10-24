@@ -67,6 +67,19 @@ export async function GET(request: NextRequest) {
     const mongoQuery: any = {
       parentTaskId: { $exists: false } // Only show main tasks, not subtasks
     }
+
+    // Consumer-spezifische Filterung basierend auf Benutzerrolle
+    if (user.role === 'KUNDE' && (user as any).customerId) {
+      mongoQuery.customerId = (user as any).customerId.toString()
+      console.log('Consumer filtering tasks by customerId:', (user as any).customerId.toString())
+    } else if (user.role === 'MITARBEITER') {
+      // Mitarbeiter sehen nur ihre eigenen Tasks
+      mongoQuery.$or = [
+        { assigneeId: new ObjectId(user.id) },
+        { reporterId: new ObjectId(user.id) }
+      ]
+      console.log('Employee filtering tasks by assigneeId:', user.id)
+    }
     
     if (query.search) {
       mongoQuery.$or = [
