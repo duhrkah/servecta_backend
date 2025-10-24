@@ -170,32 +170,32 @@ export async function PUT(
       try {
         // Determine what changed
         const changes = []
-        if (currentTicket.status !== enrichedTicket.status) {
-          changes.push(`Status geändert von "${currentTicket.status}" zu "${enrichedTicket.status}"`)
+        if (currentTicket.status !== (enrichedTicket as any).status) {
+          changes.push(`Status geändert von "${currentTicket.status}" zu "${(enrichedTicket as any).status}"`)
         }
-        if (currentTicket.priority !== enrichedTicket.priority) {
-          changes.push(`Priorität geändert von "${currentTicket.priority}" zu "${enrichedTicket.priority}"`)
+        if (currentTicket.priority !== (enrichedTicket as any).priority) {
+          changes.push(`Priorität geändert von "${currentTicket.priority}" zu "${(enrichedTicket as any).priority}"`)
         }
-        if (currentTicket.assigneeId?.toString() !== enrichedTicket.assigneeId?.toString()) {
+        if (currentTicket.assigneeId?.toString() !== (enrichedTicket as any).assigneeId?.toString()) {
           const oldAssignee = currentTicket.assigneeId ? await findUserById(currentTicket.assigneeId) : null
-          const newAssignee = enrichedTicket.assignee
+          const newAssignee = (enrichedTicket as any).assignee
           changes.push(`Zuweisung geändert von "${oldAssignee?.name || 'Nicht zugewiesen'}" zu "${newAssignee?.name || 'Nicht zugewiesen'}"`)
         }
-        if (currentTicket.description !== enrichedTicket.description) {
+        if (currentTicket.description !== (enrichedTicket as any).description) {
           changes.push('Beschreibung wurde aktualisiert')
         }
 
         // Get customer information
         let customerName = ''
         let customerEmail = ''
-        if (enrichedTicket.customerId) {
+        if ((enrichedTicket as any).customerId) {
           const customersCollection = await collections.customers()
-          const customer = await customersCollection.findOne({ _id: new ObjectId(enrichedTicket.customerId) })
+          const customer = await customersCollection.findOne({ _id: new ObjectId((enrichedTicket as any).customerId) })
           if (customer) {
             customerName = customer.legalName || customer.tradeName || 'Unbekannter Kunde'
             // Get customer email from consumer users
             const consumersCollection = await collections.consumers()
-            const consumerUser = await consumersCollection.findOne({ customerId: new ObjectId(enrichedTicket.customerId) })
+            const consumerUser = await consumersCollection.findOne({ customerId: new ObjectId((enrichedTicket as any).customerId) })
             if (consumerUser) {
               customerEmail = consumerUser.email
             }
@@ -205,12 +205,12 @@ export async function PUT(
         // Send notification if there are changes
         if (changes.length > 0) {
           await emailService.sendTicketNotification({
-            ticketTitle: enrichedTicket.title,
-            ticketDescription: enrichedTicket.description,
-            ticketStatus: enrichedTicket.status,
-            ticketPriority: enrichedTicket.priority,
-            assigneeName: enrichedTicket.assignee?.name,
-            assigneeEmail: enrichedTicket.assignee?.email,
+            ticketTitle: (enrichedTicket as any).title,
+            ticketDescription: (enrichedTicket as any).description,
+            ticketStatus: (enrichedTicket as any).status,
+            ticketPriority: (enrichedTicket as any).priority,
+            assigneeName: (enrichedTicket as any).assignee?.name,
+            assigneeEmail: (enrichedTicket as any).assignee?.email,
             customerName,
             customerEmail,
             changedBy: user.name || user.email,

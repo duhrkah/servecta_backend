@@ -134,29 +134,29 @@ export async function PUT(request: NextRequest) {
       }
       
       await settingsCollection.insertOne(defaultSettings)
-      currentSettings = defaultSettings
+      currentSettings = await settingsCollection.findOne({ type: 'system' })
     }
 
     // Update specific sections
     const updateData: any = { updatedAt: new Date() }
     
-    if (body.general) {
+    if (body.general && currentSettings) {
       updateData.general = { ...currentSettings.general, ...body.general }
     }
     
-    if (body.email) {
+    if (body.email && currentSettings) {
       updateData.email = { ...currentSettings.email, ...body.email }
     }
     
-    if (body.emailSettings) {
+    if (body.emailSettings && currentSettings) {
       updateData.emailSettings = { ...currentSettings.emailSettings, ...body.emailSettings }
     }
     
-    if (body.security) {
+    if (body.security && currentSettings) {
       updateData.security = { ...currentSettings.security, ...body.security }
     }
     
-    if (body.backup) {
+    if (body.backup && currentSettings) {
       updateData.backup = { ...currentSettings.backup, ...body.backup }
     }
 
