@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
     const consumerUser = {
       name: validatedData.name,
       email: validatedData.email,
-      passwordHash,
+      password: passwordHash, // Für Kompatibilität mit Auth-System
+      passwordHash, // Original-Feld
       role: 'KUNDE',
       status: validatedData.status,
       userType: 'CONSUMER', // Zusätzliches Feld zur Unterscheidung
@@ -176,7 +177,7 @@ export async function GET(request: NextRequest) {
 
     // Passwort-Hash aus Antwort entfernen
     const sanitizedConsumers = consumers.map(consumer => {
-      const { passwordHash, ...sanitized } = consumer
+      const { password, passwordHash, ...sanitized } = consumer
       return sanitized
     })
 

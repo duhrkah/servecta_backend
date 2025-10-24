@@ -90,10 +90,21 @@ export const authOptions: NextAuthOptions = {
         ;(session.user as any).customerName = token.customerName as string
       }
       return session
+    },
+    async redirect({ url, baseUrl }) {
+      // Bei Logout immer zur Anmeldeseite weiterleiten
+      if (url.includes('/api/auth/signout')) {
+        return `${baseUrl}/auth/signin`
+      }
+      // Bei anderen Weiterleitungen die ursprüngliche URL verwenden oder zur Basis-URL
+      if (url.startsWith('/')) return `${baseUrl}${url}`
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
     }
   },
   pages: {
-    signIn: '/auth/signin'
+    signIn: '/auth/signin',
+    signOut: '/auth/signin'
   },
   debug: process.env.NODE_ENV === 'development'
 }

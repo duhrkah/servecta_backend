@@ -38,9 +38,9 @@ export async function GET(
     }
 
     // Passwort-Hash entfernen
-    const { passwordHash, ...sanitizedConsumer } = consumer
+    const { password, passwordHash, ...sanitizedConsumer } = consumer
 
-    return NextResponse.json({ consumer: sanitizedConsumer })
+    return NextResponse.json(sanitizedConsumer)
 
   } catch (error) {
     console.error('Error fetching consumer user:', error)
@@ -89,8 +89,9 @@ export async function PUT(
 
     // Passwort hashen falls vorhanden
     if (validatedData.password) {
-      updateData.passwordHash = await bcrypt.hash(validatedData.password, 12)
-      delete updateData.password
+      const hashedPassword = await bcrypt.hash(validatedData.password, 12)
+      updateData.password = hashedPassword // Für Kompatibilität mit Auth-System
+      updateData.passwordHash = hashedPassword // Original-Feld
     }
 
     // Consumer aktualisieren

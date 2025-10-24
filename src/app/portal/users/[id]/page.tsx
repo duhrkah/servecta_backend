@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -85,12 +86,14 @@ interface Ticket {
 export default function UserDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { data: session } = useSession()
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [projects, setProjects] = useState<Project[]>([])
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [editing, setEditing] = useState(false)
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [editData, setEditData] = useState({
     name: '',
     email: '',
@@ -98,7 +101,17 @@ export default function UserDetailPage() {
     status: '',
     departments: [] as ('IT' | 'DATENSCHUTZ')[]
   })
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+
+  // Prüfen ob der aktuelle Benutzer ein Admin ist oder sein eigenes Passwort ändert
+  const isOwnAccount = session?.user?.id === params.id
+  const isAdmin = session?.user?.role === 'ADMIN'
+  const canChangePasswordWithoutCurrent = isAdmin && !isOwnAccount
 
   useEffect(() => {
     fetchUserData()
@@ -173,6 +186,47 @@ export default function UserDetailPage() {
     } catch (error) {
       console.error('Failed to delete user:', error)
       throw error
+    }
+  }
+
+  const handleChangePassword = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error('Neue Passwörter stimmen nicht überein')
+      return
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      toast.error('Neues Passwort muss mindestens 6 Zeichen lang sein')
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/v1/users-mongodb/${params.id}/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        }),
+      })
+
+      if (response.ok) {
+        toast.success('Passwort erfolgreich geändert!')
+        setIsChangingPassword(false)
+        setPasswordData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        })
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Fehler beim Ändern des Passworts')
+      }
+    } catch (error) {
+      console.error('Failed to change password:', error)
+      toast.error('Fehler beim Ändern des Passworts')
     }
   }
 
@@ -339,6 +393,13 @@ export default function UserDetailPage() {
               {editing ? 'Abbrechen' : 'Bearbeiten'}
             </Button>
             <Button
+              variant="outline"
+              onClick={() => setIsChangingPassword(!isChangingPassword)}
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              {isChangingPassword ? 'Passwort-Änderung abbrechen' : 'Passwort ändern'}
+            </Button>
+            <Button
               variant="destructive"
               onClick={() => setShowDeleteDialog(true)}
             >
@@ -489,6 +550,75 @@ export default function UserDetailPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Passwort-Änderung */}
+          {isChangingPassword && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Passwort ändern
+                </CardTitle>
+                <CardDescription>
+                  {canChangePasswordWithoutCurrent 
+                    ? 'Als Administrator können Sie das Passwort für diesen Benutzer zurücksetzen'
+                    : 'Ändern Sie Ihr Passwort für mehr Sicherheit'
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!canChangePasswordWithoutCurrent && (
+                  <div>
+                    <label className="text-sm font-medium">Aktuelles Passwort</label>
+                    <Input
+                      type="password"
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                      placeholder="Aktuelles Passwort eingeben"
+                    />
+                  </div>
+                )}
+                <div>
+                  <label className="text-sm font-medium">Neues Passwort</label>
+                  <Input
+                    type="password"
+                    value={passwordData.newPassword}
+                    onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                    placeholder="Neues Passwort eingeben (mind. 6 Zeichen)"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Neues Passwort bestätigen</label>
+                  <Input
+                    type="password"
+                    value={passwordData.confirmPassword}
+                    onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                    placeholder="Neues Passwort wiederholen"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={handleChangePassword} className="flex-1">
+                    <Shield className="h-4 w-4 mr-2" />
+                    {canChangePasswordWithoutCurrent ? 'Passwort zurücksetzen' : 'Passwort ändern'}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setIsChangingPassword(false)
+                      setPasswordData({
+                        currentPassword: '',
+                        newPassword: '',
+                        confirmPassword: ''
+                      })
+                    }}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Abbrechen
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* User Statistics */}
           <Card>
