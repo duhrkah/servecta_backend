@@ -6,9 +6,9 @@ import { Providers } from '@/components/providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Servecta Admin - Alles aus einem Guss',
-  description: 'Admin Backend für Servecta UG - Datenschutz & DSGVO, IT-Security, IT-Infrastruktur',
-  keywords: ['Servecta', 'Admin', 'DSGVO', 'Datenschutz', 'IT-Security'],
+  title: 'Servecta Portal - Alles aus einem Guss',
+  description: 'Kundenportal für Servecta UG - Datenschutz & DSGVO, IT-Security, IT-Infrastruktur',
+  keywords: ['Servecta', 'Admin', 'DSGVO', 'Datenschutz', 'IT-Security', 'Kundenportal', 'Customer Portal'],
   authors: [{ name: 'Servecta UG (haftungsbeschränkt) i.G.' }],
   viewport: 'width=device-width, initial-scale=1',
   themeColor: '#0E0E12',

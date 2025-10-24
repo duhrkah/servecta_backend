@@ -11,8 +11,8 @@ import Logo from '@/components/logo'
 export default function SignInPage() {
   const { data: session, status } = useSession()
   const [isLoading, setIsLoading] = useState(false)
-  const [email, setEmail] = useState('admin@servecta.de')
-  const [password, setPassword] = useState('admin123')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const router = useRouter()
 
@@ -66,7 +66,7 @@ export default function SignInPage() {
             <Logo width={192} height={192} className="h-48 w-48" />
           </div>
           <CardTitle className="text-2xl font-bold text-white">
-            Servecta Admin
+            Servecta Kundenportal
           </CardTitle>
           <CardDescription className="text-gray-300">
             Alles aus einem Guss
@@ -88,7 +88,7 @@ export default function SignInPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@servecta.de"
+              placeholder="E-Mail-Adresse"
               className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-blue focus:border-transparent"
             />
           </div>
@@ -102,7 +102,7 @@ export default function SignInPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="admin123"
+              placeholder="Passwort"
               className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-blue focus:border-transparent"
             />
           </div>
