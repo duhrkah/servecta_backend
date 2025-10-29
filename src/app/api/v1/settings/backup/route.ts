@@ -24,10 +24,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get MongoDB connection string
-    const mongoUri = process.env.MONGODB_URI
-    if (!mongoUri) {
-      throw new Error('MongoDB URI not configured')
+    // Get MongoDB connection string (verwende MONGODB_URI für Konsistenz)
+    const databaseUrl = process.env.MONGODB_URI
+    if (!databaseUrl) {
+      throw new Error('MONGODB_URI not configured. Please set it in your Vercel environment variables.')
     }
 
     // Create backup timestamp

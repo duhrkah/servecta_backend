@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import { getNextAuthUrl } from '@/lib/env'
 
 interface EmailTemplate {
   subject: string
@@ -125,7 +126,7 @@ class EmailService {
               </div>
               
               <div style="text-align: center; margin: 20px 0;">
-                <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3001'}/portal/tasks" 
+                <a href="${getNextAuthUrl()}/portal/tasks" 
                    style="background: ${urgencyColor}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
                   Aufgabe anzeigen
                 </a>
@@ -149,7 +150,7 @@ Beschreibung: ${data.taskDescription || 'Keine Beschreibung verfügbar'}
 ${data.projectName ? `📋 Projekt: ${data.projectName}` : ''}
 ${data.customerName ? `🏢 Kunde: ${data.customerName}` : ''}
 
-Besuchen Sie: ${process.env.NEXTAUTH_URL || 'http://localhost:3001'}/portal/tasks
+Besuchen Sie: ${getNextAuthUrl()}/portal/tasks
 
 Diese Benachrichtigung wurde automatisch generiert.
       `
@@ -230,7 +231,7 @@ Diese Benachrichtigung wurde automatisch generiert.
               </div>
               
               <div style="text-align: center; margin: 20px 0;">
-                <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3001'}/portal/tickets" 
+                <a href="${getNextAuthUrl()}/portal/tickets" 
                    style="background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
                   Ticket anzeigen
                 </a>
@@ -256,7 +257,7 @@ ${data.customerName ? `Kunde: ${data.customerName}` : ''}
 Geändert von: ${data.changedBy}
 ${data.changeDetails ? `Änderungsdetails: ${data.changeDetails}` : ''}
 
-Besuchen Sie: ${process.env.NEXTAUTH_URL || 'http://localhost:3001'}/portal/tickets
+Besuchen Sie: ${getNextAuthUrl()}/portal/tickets
 
 Diese Benachrichtigung wurde automatisch generiert.
       `

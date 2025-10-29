@@ -42,7 +42,7 @@ export default function SignInPage() {
         
         if (result?.error) {
           console.error('Sign in error:', result.error)
-          setError('Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.')
+          setError('Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten oder melden Sie sich beim Kundensupport unter support@servecta.de.')
         } else if (result?.ok) {
           setError('')
           router.push('/portal')

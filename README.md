@@ -113,6 +113,8 @@ Für Production-Deployment auf Ihrem eigenen Server siehe: [DEPLOYMENT_GUIDE.md]
 
 ## 🔧 Environment Variables
 
+### Lokale Entwicklung
+
 Erstellen Sie eine `.env.local` Datei mit folgenden Variablen:
 
 ```bash
@@ -120,15 +122,34 @@ Erstellen Sie eine `.env.local` Datei mit folgenden Variablen:
 DATABASE_URL=mongodb://localhost:27017/servecta_admin
 
 # NextAuth
-NEXTAUTH_URL=https://ihre-domain.com
+NEXTAUTH_URL=http://localhost:3001
 NEXTAUTH_SECRET=ihr-super-geheimer-schluessel-mindestens-32-zeichen-lang
 
 # Node.js Umgebung
-NODE_ENV=production
+NODE_ENV=development
 
-# Cron-Job-Sicherheit
+# Cron-Job-Sicherheit (optional)
 CRON_SECRET=ihr-cron-geheimer-schluessel
 ```
+
+### Vercel Deployment
+
+Für Vercel Deployment konfigurieren Sie die Environment Variables im Vercel Dashboard unter **Settings → Environment Variables**.
+
+**Erforderliche Variablen:**
+- `DATABASE_URL` - MongoDB Connection String (z.B. `mongodb+srv://user:pass@cluster.mongodb.net/database`)
+- `NEXTAUTH_SECRET` - Mindestens 32 Zeichen (generieren mit: `openssl rand -base64 32`)
+
+**Optionale Variablen:**
+- `NEXTAUTH_URL` - Wird automatisch aus `VERCEL_URL` generiert, wenn nicht gesetzt
+- `CRON_SECRET` - Für geschützte Cron Job Endpoints
+
+**Automatisch von Vercel gesetzt:**
+- `VERCEL_URL` - Automatisch gesetzt
+- `VERCEL_ENV` - Automatisch gesetzt (production, preview, development)
+- `NODE_ENV` - Automatisch auf `production` gesetzt
+
+📖 **Detaillierte Vercel-Konfiguration**: Siehe [VERCEL_SETUP.md](./VERCEL_SETUP.md)
 
 ## 🔌 API Endpoints
 
