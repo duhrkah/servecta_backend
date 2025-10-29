@@ -1,14 +1,14 @@
 import { MongoClient, Db, Collection, Document, ObjectId } from 'mongodb'
 
-// Für Vercel: MONGODB_URI muss gesetzt sein
+// Für Vercel: MONGODB_URI oder DATABASE_URL muss gesetzt sein
 // Lokale Entwicklung: Fallback auf localhost
-const uri = process.env.MONGODB_URI || 
+const uri = process.env.MONGODB_URI || process.env.DATABASE_URL || 
   (process.env.NODE_ENV === 'development' 
     ? 'mongodb://localhost:27017/servecta_admin' 
     : (() => {
         throw new Error(
-          'DATABASE_URL is required in production. ' +
-          'Please set it in your Vercel project settings.'
+          'MONGODB_URI or DATABASE_URL is required in production. ' +
+          'Please set MONGODB_URI in your Vercel project settings.'
         )
       })())
 
@@ -50,7 +50,7 @@ export async function getDatabase(): Promise<Db> {
     return client.db('servecta_admin')
   } catch (error) {
     console.error('Database connection error:', error)
-    console.error('Database URL:', process.env.DATABASE_URL ? 'Set' : 'Not set')
+    console.error('Database URL:', (process.env.MONGODB_URI || process.env.DATABASE_URL) ? 'Set' : 'Not set')
     throw new Error(`Failed to connect to database: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }

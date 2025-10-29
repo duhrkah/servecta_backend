@@ -34,7 +34,8 @@ export async function GET() {
         url: process.env.VERCEL_URL || 'not set',
         env: process.env.VERCEL_ENV || 'not set',
       },
-      databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set',
+      databaseUrl: (process.env.MONGODB_URI || process.env.DATABASE_URL) ? 'Set' : 'Not set',
+      mongodbUri: process.env.MONGODB_URI ? 'Set' : 'Not set',
       nextAuthUrl: process.env.NEXTAUTH_URL || process.env.VERCEL_URL ? 'Set' : 'Not set',
       nextAuthSecret: process.env.NEXTAUTH_SECRET ? 'Set' : 'Not set',
     })
@@ -47,7 +48,7 @@ export async function GET() {
       error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || process.env.VERCEL_ENV || 'unknown',
-      databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set'
+      databaseUrl: (process.env.MONGODB_URI || process.env.DATABASE_URL) ? 'Set' : 'Not set'
     }, { status: 500 })
   }
 }

@@ -65,7 +65,12 @@ function getEnvConfig() {
   return {
     // Datenbank
     get DATABASE_URL() {
-      return requireEnv('DATABASE_URL')
+      // Unterstützt sowohl MONGODB_URI als auch DATABASE_URL für Kompatibilität
+      return process.env.MONGODB_URI || process.env.DATABASE_URL || ''
+    },
+    get MONGODB_URI() {
+      // Unterstützt sowohl MONGODB_URI als auch DATABASE_URL für Kompatibilität
+      return process.env.MONGODB_URI || process.env.DATABASE_URL || ''
     },
     
     // NextAuth
@@ -109,7 +114,13 @@ export const env = getEnvConfig()
  */
 export function validateEnv(): void {
   try {
-    requireEnv('DATABASE_URL')
+    // Validiere, dass entweder MONGODB_URI oder DATABASE_URL gesetzt ist
+    if (!process.env.MONGODB_URI && !process.env.DATABASE_URL) {
+      throw new Error(
+        'Either MONGODB_URI or DATABASE_URL must be set.\n' +
+        'Please set MONGODB_URI in your Vercel project settings or .env.local file.'
+      )
+    }
     requireEnv('NEXTAUTH_SECRET')
     
     // Validiere NEXTAUTH_SECRET Länge
