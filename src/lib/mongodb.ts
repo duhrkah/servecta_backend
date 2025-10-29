@@ -1,7 +1,23 @@
 import { MongoClient, Db, Collection, Document, ObjectId } from 'mongodb'
 
-const uri = process.env.DATABASE_URL || 'mongodb://localhost:27017/servecta_admin'
-const options = {}
+// Für Vercel: MONGODB_URI muss gesetzt sein
+// Lokale Entwicklung: Fallback auf localhost
+const uri = process.env.MONGODB_URI || 
+  (process.env.NODE_ENV === 'development' 
+    ? 'mongodb://localhost:27017/servecta_admin' 
+    : (() => {
+        throw new Error(
+          'DATABASE_URL is required in production. ' +
+          'Please set it in your Vercel project settings.'
+        )
+      })())
+
+const options = {
+  // Optimierungen für Vercel Serverless
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+}
 
 let client: MongoClient
 let clientPromise: Promise<MongoClient>
