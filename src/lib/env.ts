@@ -80,6 +80,10 @@ function getEnvConfig() {
     get NEXTAUTH_SECRET() {
       return requireEnv('NEXTAUTH_SECRET')
     },
+    // API Access
+    get API_KEY() {
+      return getEnv('API_KEY')
+    },
     
     // Cron Jobs
     get CRON_SECRET() {
