@@ -84,6 +84,23 @@ function getEnvConfig() {
     get API_KEY() {
       return getEnv('API_KEY')
     },
+
+    // Microsoft Graph Mail
+    get MICROSOFT_TENANT_ID() {
+      return getEnv('MICROSOFT_TENANT_ID')
+    },
+    get MICROSOFT_CLIENT_ID() {
+      return getEnv('MICROSOFT_CLIENT_ID')
+    },
+    get MICROSOFT_CLIENT_SECRET() {
+      return getEnv('MICROSOFT_CLIENT_SECRET')
+    },
+    get MICROSOFT_FROM_EMAIL() {
+      return getEnv('MICROSOFT_FROM_EMAIL')
+    },
+    get CONTACT_EMAIL() {
+      return getEnv('CONTACT_EMAIL')
+    },
     
     // Cron Jobs
     get CRON_SECRET() {

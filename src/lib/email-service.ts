@@ -1,5 +1,14 @@
-import nodemailer from 'nodemailer'
-import { getNextAuthUrl } from '@/lib/env'
+import { getNextAuthUrl, env } from '@/lib/env'
+
+interface GraphSendMailMessage {
+  message: {
+    subject: string
+    body: { contentType: 'HTML' | 'Text'; content: string }
+    toRecipients: Array<{ emailAddress: { address: string; name?: string } }>
+    from?: { emailAddress: { address: string } }
+  }
+  saveToSentItems?: boolean
+}
 
 interface EmailTemplate {
   subject: string
@@ -33,61 +42,71 @@ interface TicketNotificationData {
 }
 
 class EmailService {
-  private transporter: nodemailer.Transporter | null = null
+  constructor() {}
 
-  constructor() {
-    // Don't initialize transporter here - will be done dynamically
-  }
+  private async getAccessToken(): Promise<string> {
+    const tenantId = env.MICROSOFT_TENANT_ID
+    const clientId = env.MICROSOFT_CLIENT_ID
+    const clientSecret = env.MICROSOFT_CLIENT_SECRET
 
-  private async getTransporter(): Promise<nodemailer.Transporter> {
-    if (this.transporter) {
-      return this.transporter
+    if (!tenantId || !clientId || !clientSecret) {
+      throw new Error('Microsoft Graph Credentials fehlen (TENANT_ID/CLIENT_ID/CLIENT_SECRET)')
     }
 
-    // Get settings from database
-    const { collections } = await import('@/lib/mongodb')
-    const settingsCollection = await collections.settings()
-    const settings = await settingsCollection.findOne({ type: 'system' })
+    const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`
+    const body = new URLSearchParams()
+    body.set('client_id', clientId)
+    body.set('client_secret', clientSecret)
+    body.set('grant_type', 'client_credentials')
+    body.set('scope', 'https://graph.microsoft.com/.default')
 
-    if (!settings?.emailSettings) {
-      throw new Error('Email settings not configured')
-    }
-
-    const emailSettings = settings.emailSettings
-
-    // Auto-correct SSL settings based on port
-    let secure = emailSettings.smtpSecure
-    let port = parseInt(emailSettings.smtpPort)
-    
-    // Auto-correct common port/SSL combinations
-    if (port === 465) {
-      secure = true  // Port 465 always uses SSL
-    } else if (port === 587) {
-      secure = false // Port 587 uses STARTTLS (not SSL)
-    } else if (port === 25) {
-      secure = false // Port 25 usually doesn't use SSL
-    }
-
-    // Create transporter with database settings
-    this.transporter = nodemailer.createTransport({
-      host: emailSettings.smtpHost,
-      port: port,
-      secure: secure, // Auto-corrected SSL setting
-      auth: {
-        user: emailSettings.smtpUser,
-        pass: emailSettings.smtpPass,
-      },
-      tls: {
-        // Do not fail on invalid certs
-        rejectUnauthorized: false
-      },
-      // Additional options for better compatibility
-      connectionTimeout: 60000, // 60 seconds
-      greetingTimeout: 30000,   // 30 seconds
-      socketTimeout: 60000,     // 60 seconds
+    const res = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString()
     })
 
-    return this.transporter
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Error(`Token Fetch fehlgeschlagen: ${res.status} ${text}`)
+    }
+    const json = await res.json() as { access_token: string }
+    return json.access_token
+  }
+
+  private async sendViaGraph(to: string[], subject: string, html: string, text: string): Promise<void> {
+    const fromEmail = env.MICROSOFT_FROM_EMAIL || env.CONTACT_EMAIL
+    if (!fromEmail) {
+      throw new Error('MICROSOFT_FROM_EMAIL oder CONTACT_EMAIL muss gesetzt sein')
+    }
+
+    const accessToken = await this.getAccessToken()
+
+    const payload: GraphSendMailMessage = {
+      message: {
+        subject,
+        body: { contentType: 'HTML', content: html || text },
+        toRecipients: to.map(address => ({ emailAddress: { address } })),
+        from: { emailAddress: { address: fromEmail } }
+      },
+      saveToSentItems: false
+    }
+
+    // Verwende die user-scoped sendMail-Route mit der From-Adresse
+    const url = `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(fromEmail)}/sendMail`
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!res.ok) {
+      const textBody = await res.text()
+      throw new Error(`Graph sendMail fehlgeschlagen: ${res.status} ${textBody}`)
+    }
   }
 
   private createTaskDeadlineTemplate(data: TaskNotificationData): EmailTemplate {
@@ -266,22 +285,8 @@ Diese Benachrichtigung wurde automatisch generiert.
 
   async sendTaskDeadlineNotification(data: TaskNotificationData): Promise<boolean> {
     try {
-      const transporter = await this.getTransporter()
       const template = this.createTaskDeadlineTemplate(data)
-      
-      // Get SMTP_FROM from database settings
-      const { collections } = await import('@/lib/mongodb')
-      const settingsCollection = await collections.settings()
-      const settings = await settingsCollection.findOne({ type: 'system' })
-      const fromEmail = settings?.emailSettings?.smtpFrom || 'noreply@servecta.de'
-      
-      await transporter.sendMail({
-        from: fromEmail,
-        to: data.assigneeEmail,
-        subject: template.subject,
-        html: template.html,
-        text: template.text,
-      })
+      await this.sendViaGraph([data.assigneeEmail], template.subject, template.html, template.text)
 
       console.log(`Task deadline notification sent to ${data.assigneeEmail}`)
       return true
@@ -293,7 +298,6 @@ Diese Benachrichtigung wurde automatisch generiert.
 
   async sendTicketNotification(data: TicketNotificationData): Promise<boolean> {
     try {
-      const transporter = await this.getTransporter()
       const template = this.createTicketNotificationTemplate(data)
       const recipients = []
 
@@ -311,20 +315,7 @@ Diese Benachrichtigung wurde automatisch generiert.
         console.log('No recipients for ticket notification')
         return false
       }
-
-      // Get SMTP_FROM from database settings
-      const { collections } = await import('@/lib/mongodb')
-      const settingsCollection = await collections.settings()
-      const settings = await settingsCollection.findOne({ type: 'system' })
-      const fromEmail = settings?.emailSettings?.smtpFrom || 'noreply@servecta.de'
-
-      await transporter.sendMail({
-        from: fromEmail,
-        to: recipients.join(', '),
-        subject: template.subject,
-        html: template.html,
-        text: template.text,
-      })
+      await this.sendViaGraph(recipients, template.subject, template.html, template.text)
 
       console.log(`Ticket notification sent to: ${recipients.join(', ')}`)
       return true
@@ -336,8 +327,8 @@ Diese Benachrichtigung wurde automatisch generiert.
 
   async testConnection(): Promise<boolean> {
     try {
-      const transporter = await this.getTransporter()
-      await transporter.verify()
+      // Prüfe nur Token-Abruf als Verbindungs-Test
+      await this.getAccessToken()
       return true
     } catch (error) {
       console.error('Email service connection failed:', error)
